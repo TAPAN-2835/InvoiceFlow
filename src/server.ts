@@ -26,12 +26,15 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   if (!contentType.includes("application/json")) return response;
 
   const body = await response.clone().text();
-  if (!body.includes('"unhandled":true') || !body.includes('"message":"HTTPError"')) {
+  if (!body.includes('"unhandled":true')) {
     return response;
   }
 
-  console.error(consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`));
-  return new Response(renderErrorPage(), {
+  const captured = consumeLastCapturedError();
+  const errMsg = captured ? (captured.stack || captured.message) : `h3 swallowed SSR error: ${body}`;
+  console.error(errMsg);
+  // Temporarily return raw error for debugging
+  return new Response(`<html><body><pre style="white-space:pre-wrap;font-family:monospace;padding:2rem">${errMsg}</pre></body></html>`, {
     status: 500,
     headers: { "content-type": "text/html; charset=utf-8" },
   });
@@ -43,9 +46,10 @@ export default {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      return new Response(renderErrorPage(), {
+      const msg = error?.stack || error?.message || String(error);
+      return new Response(`<html><body><pre style="white-space:pre-wrap;font-family:monospace;padding:2rem">${msg}</pre></body></html>`, {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
       });
