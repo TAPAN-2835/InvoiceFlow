@@ -51,6 +51,7 @@ function subscribe(key: string, l: Listener) {
   return () => listeners.get(key)!.delete(l);
 }
 
+const parseCache = new Map<string, any>();
 function read<T>(key: string, fallback: T, legacyKey?: string): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -62,7 +63,11 @@ function read<T>(key: string, fallback: T, legacyKey?: string): T {
         window.localStorage.removeItem(legacyKey);
       }
     }
-    return raw ? (JSON.parse(raw) as T) : fallback;
+    if (!raw) return fallback;
+    if (parseCache.has(raw)) return parseCache.get(raw);
+    const parsed = JSON.parse(raw) as T;
+    parseCache.set(raw, parsed);
+    return parsed;
   } catch { return fallback; }
 }
 function write<T>(key: string, value: T) {
