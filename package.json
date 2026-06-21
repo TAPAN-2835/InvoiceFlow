@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && node -e \"const fs=require('fs'); const f='.vercel/output/functions/__server.func/index.mjs'; let code=fs.readFileSync(f,'utf8'); code=code.replace('export { vercel_web_default as default };', 'export default function(r, c) { return vercel_web_default.fetch(r, c); }'); fs.writeFileSync(f, code);\"",
+    "build": "vite build && node -e \"const fs=require('fs'); const dir='.vercel/output/functions/__server.func'; fs.writeFileSync(dir+'/.vc-config.json', JSON.stringify({runtime:'edge',entrypoint:'index.mjs'})); let code=fs.readFileSync(dir+'/index.mjs','utf8'); if(!code.includes('export default function(r,c)')) code=code.replace('export { vercel_web_default as default };','export default function(r,c){return vercel_web_default.fetch(r,c);}'); fs.writeFileSync(dir+'/index.mjs',code);\"",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
