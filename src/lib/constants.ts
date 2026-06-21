@@ -8,8 +8,8 @@ export const BRAND = {
 export const AUTHOR = {
   name: "Tapan Alpeshkumar Patel",
   email: "mrpatel2835@gmail.com",
-  github: "https://github.com/mrpatel2835",
-  linkedin: "https://linkedin.com/in/mrpatel2835",
+  github: "https://github.com/TAPAN-2835",
+  linkedin: "https://www.linkedin.com/in/tapan-patel-b91241288/",
 } as const;
 
 export const DIGITAL_HEROES_URL = "https://digitalheroesco.com";

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { useEffect, useState, useMemo } from "react";
 import {
@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { SiteFooter } from "@/components/SiteFooter";
-import { useInvoices, useHydrated } from "@/lib/store";
+import { useInvoices, useHydrated, useSettings } from "@/lib/store";
 import { computeTotals } from "@/lib/invoice";
 import { formatCompactINR } from "@/lib/format";
 import { BRAND } from "@/lib/constants";
@@ -358,6 +358,17 @@ function Stats() {
 }
 
 function Showcase() {
+  const navigate = useNavigate();
+  const [settings, setSettings] = useSettings();
+
+  const handleTemplateClick = (id: string) => {
+    setSettings((s) => ({
+      ...s,
+      defaults: { ...s.defaults, template: id as any },
+    }));
+    navigate({ to: "/invoices/new" });
+  };
+
   const templates = [
     { id: "modern", name: "Modern", c: "from-blue-500 to-violet-500" },
     { id: "minimal", name: "Minimal", c: "from-slate-700 to-slate-900" },
@@ -374,15 +385,16 @@ function Showcase() {
       </div>
       <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {templates.map((t, i) => (
-          <motion.div
+          <motion.button
             key={t.id}
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.05 }}
-            className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-2 backdrop-blur-xl"
+            onClick={() => handleTemplateClick(t.id)}
+            className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-2 backdrop-blur-xl text-left hover:border-white/20 transition-all cursor-pointer"
           >
-            <div className={`relative aspect-[3/4] overflow-hidden rounded-xl bg-gradient-to-br ${t.c}`}>
+            <div className={`relative aspect-[3/4] overflow-hidden rounded-xl bg-gradient-to-br ${t.c} transition-transform group-hover:scale-105`}>
               <div className="absolute inset-x-3 top-3 h-3 rounded bg-white/30" />
               <div className="absolute left-3 top-9 h-2 w-1/2 rounded bg-white/25" />
               <div className="absolute inset-x-3 top-16 h-px bg-white/30" />
@@ -394,7 +406,7 @@ function Showcase() {
               </div>
             </div>
             <div className="px-2 pt-3 pb-2 text-sm font-medium">{t.name}</div>
-          </motion.div>
+          </motion.button>
         ))}
       </div>
     </section>
