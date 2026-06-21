@@ -1,1 +1,6 @@
-{"runtime":"edge","entrypoint":"index.mjs"}
+{
+  "handler": "node-handler.mjs",
+  "launcherType": "Nodejs",
+  "shouldAddHelpers": false,
+  "runtime": "nodejs20.x"
+}

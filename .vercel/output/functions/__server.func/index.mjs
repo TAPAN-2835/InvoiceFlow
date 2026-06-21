@@ -228,4 +228,4 @@ var vercel_web_default = { fetch(req, context) {
 	return nitroApp.fetch(req);
 } };
 //#endregion
-export default function(r,c){return vercel_web_default.fetch(r,c);}
+export { vercel_web_default as default };
