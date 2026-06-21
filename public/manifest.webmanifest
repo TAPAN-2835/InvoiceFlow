@@ -1,0 +1,17 @@
+{
+  "name": "Invoxa — GST Invoices",
+  "short_name": "Invoxa",
+  "description": "Beautiful, GST-compliant invoices for Indian businesses. Free, local-first, works offline.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070B14",
+  "theme_color": "#070B14",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
