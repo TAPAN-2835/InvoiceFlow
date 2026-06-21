@@ -15,12 +15,26 @@ const vcConfig = {
 fs.writeFileSync(path.join(dir, ".vc-config.json"), JSON.stringify(vcConfig, null, 2));
 console.log("✓ Patched .vc-config.json → nodejs20.x, handler: node-handler.mjs");
 
-// 2. Write the bridge file
+// 2. Write the bridge file with lazy dynamic import so any load errors are caught and returned
 const bridge = `// Node.js bridge: converts Node IncomingMessage/ServerResponse to Web Request/Response
-import fetchHandler from "./index.mjs";
+// Uses dynamic import so module-load errors are visible in the response body
+
+let _handler = null;
+async function getHandler() {
+  if (_handler) return _handler;
+  try {
+    const mod = await import("./index.mjs");
+    _handler = mod.default;
+    return _handler;
+  } catch (err) {
+    throw new Error("Failed to load index.mjs: " + err.message + "\\n" + err.stack);
+  }
+}
 
 export default async function handler(req, res) {
   try {
+    const fetchHandler = await getHandler();
+
     const proto = req.headers["x-forwarded-proto"] || "https";
     const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
     const url = proto + "://" + host + req.url;
@@ -45,6 +59,7 @@ export default async function handler(req, res) {
       duplex: "half",
     });
 
+    // fetchHandler is { fetch(req, ctx) {} }
     const webRes = await fetchHandler.fetch(webReq, {});
 
     res.statusCode = webRes.status;
@@ -54,8 +69,11 @@ export default async function handler(req, res) {
     res.end(buf);
   } catch (err) {
     console.error("[vercel-bridge]", err);
+    // Return full error details in the body so we can debug via browser
+    const msg = (err && (err.stack || err.message)) || String(err);
     res.statusCode = 500;
-    res.end("Internal Server Error: " + (err && err.message));
+    res.setHeader("content-type", "text/plain; charset=utf-8");
+    res.end("BRIDGE ERROR:\\n" + msg);
   }
 }
 `;
