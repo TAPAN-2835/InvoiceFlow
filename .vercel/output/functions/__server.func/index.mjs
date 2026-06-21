@@ -24,10 +24,6 @@ var findRouteRules = /* @__PURE__ */ (() => {
 		route: "/assets/**",
 		handler: headers,
 		options: { "cache-control": "public, max-age=31536000, immutable" }
-	}], $1 = [{
-		name: "edge",
-		route: "/**",
-		options: true
 	}];
 	return (m, p) => {
 		let r = [];
@@ -39,10 +35,6 @@ var findRouteRules = /* @__PURE__ */ (() => {
 				params: { "_": s.slice(2).join("/") }
 			});
 		}
-		r.unshift({
-			data: $1,
-			params: { "_": s.slice(1).join("/") }
-		});
 		return r;
 	};
 })();

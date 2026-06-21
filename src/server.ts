@@ -42,9 +42,10 @@ async function fetchHandler(request: Request, env: unknown, ctx: unknown) {
     const handler = await getServerEntry();
     const response = await handler.fetch(request, env, ctx);
     return await normalizeCatastrophicSsrResponse(response);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return new Response(renderErrorPage(), {
+    const html = `<html><body><h1>SSR Error</h1><pre>${error?.stack || error?.message || String(error)}</pre></body></html>`;
+    return new Response(html, {
       status: 500,
       headers: { "content-type": "text/html; charset=utf-8" },
     });
