@@ -358,15 +358,16 @@ function Stats() {
 }
 
 function Showcase() {
-  const navigate = useNavigate();
   const [settings, setSettings] = useSettings();
 
   const handleTemplateClick = (id: string) => {
-    setSettings((s) => ({
-      ...s,
-      defaults: { ...s.defaults, template: id as any },
-    }));
-    navigate({ to: "/invoices/new" });
+    setSettings((s) => {
+      const current = s || { defaults: {} };
+      return {
+        ...current,
+        defaults: { ...(current.defaults || {}), template: id as any },
+      };
+    });
   };
 
   const templates = [
@@ -385,28 +386,32 @@ function Showcase() {
       </div>
       <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {templates.map((t, i) => (
-          <motion.button
+          <motion.div
             key={t.id}
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.05 }}
-            onClick={() => handleTemplateClick(t.id)}
-            className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-2 backdrop-blur-xl text-left hover:border-white/20 transition-all cursor-pointer"
           >
-            <div className={`relative aspect-[3/4] overflow-hidden rounded-xl bg-gradient-to-br ${t.c} transition-transform group-hover:scale-105`}>
-              <div className="absolute inset-x-3 top-3 h-3 rounded bg-white/30" />
-              <div className="absolute left-3 top-9 h-2 w-1/2 rounded bg-white/25" />
-              <div className="absolute inset-x-3 top-16 h-px bg-white/30" />
-              {Array.from({ length: 5 }).map((_, k) => (
-                <div key={k} className="absolute left-3 right-3 h-1.5 rounded bg-white/20" style={{ top: 76 + k * 14 }} />
-              ))}
-              <div className="absolute bottom-3 left-3 right-3 rounded-lg bg-white/25 p-2">
-                <div className="h-2 w-1/3 rounded bg-white/60" />
+            <Link
+              to="/invoices/new"
+              onClick={() => handleTemplateClick(t.id)}
+              className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-2 backdrop-blur-xl text-left hover:border-white/20 transition-all cursor-pointer block h-full"
+            >
+              <div className={`relative aspect-[3/4] overflow-hidden rounded-xl bg-gradient-to-br ${t.c} transition-transform group-hover:scale-105`}>
+                <div className="absolute inset-x-3 top-3 h-3 rounded bg-white/30" />
+                <div className="absolute left-3 top-9 h-2 w-1/2 rounded bg-white/25" />
+                <div className="absolute inset-x-3 top-16 h-px bg-white/30" />
+                {Array.from({ length: 5 }).map((_, k) => (
+                  <div key={k} className="absolute left-3 right-3 h-1.5 rounded bg-white/20" style={{ top: 76 + k * 14 }} />
+                ))}
+                <div className="absolute bottom-3 left-3 right-3 rounded-lg bg-white/25 p-2">
+                  <div className="h-2 w-1/3 rounded bg-white/60" />
+                </div>
               </div>
-            </div>
-            <div className="px-2 pt-3 pb-2 text-sm font-medium">{t.name}</div>
-          </motion.button>
+              <div className="px-2 pt-3 pb-2 text-sm font-medium">{t.name}</div>
+            </Link>
+          </motion.div>
         ))}
       </div>
     </section>
